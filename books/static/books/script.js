@@ -65,7 +65,17 @@ function search() {
             // get the specific FIELDS of the book and save them as a list
             const ul = document.createElement("ul")
             Object.entries(FIELDS).forEach(([key, value]) => {
-                ul.innerHTML += `<li><strong>${key}:</strong> ${book[value]}</li>`
+                // try limiting genres list to 5: a TypeError is raised if .slice() is used on an empty array of genres
+                // maybe use ternary?
+                if (key === "Genres") {
+                    try {
+                        ul.innerHTML += `<li><strong>${key}:</strong> ${book[value].slice(0, 5)}</li>`
+                    } catch(error) {
+                        ul.innerHTML += `<li><strong>${key}:</strong> None</li>`
+                    }
+                } else {
+                    ul.innerHTML += `<li><strong>${key}:</strong> ${book[value]}</li>`
+                }
             })
             infoCol.appendChild(ul)
 
