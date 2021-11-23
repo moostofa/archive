@@ -65,17 +65,16 @@ function search() {
             // get the specific FIELDS of the book and save them as a list
             const ul = document.createElement("ul")
             Object.entries(FIELDS).forEach(([key, value]) => {
+                let fieldValue = book[value]
+
                 // try limiting genres list to 5: a TypeError is raised if .slice() is used on an empty array of genres
-                // maybe use ternary?
-                if (key === "Genres") {
+                if (key === "Genres")
                     try {
-                        ul.innerHTML += `<li><strong>${key}:</strong> ${book[value].slice(0, 5)}</li>`
+                        fieldValue = fieldValue.slice(0, 5)
                     } catch(error) {
-                        ul.innerHTML += `<li><strong>${key}:</strong> None</li>`
+                        fieldValue = "None"
                     }
-                } else {
-                    ul.innerHTML += `<li><strong>${key}:</strong> ${book[value]}</li>`
-                }
+                ul.innerHTML += `<li><strong>${key}:</strong> ${fieldValue}</li>`
             })
             infoCol.appendChild(ul)
 
@@ -92,9 +91,6 @@ function search() {
             // if button is pressed, pass data into /action view and add book to user's watchlist (TODO in views.py)
             actionBtn.addEventListener("click", () => action())
             actionCol.appendChild(actionBtn)
-
-            // user can click on the div to be taken to the page with full book details
-            imgCol.onclick = infoCol.onclick = () => getBook(bookId)
 
             // append columns to the row & add the row to the container
             row.append(imgCol, infoCol, actionCol)
