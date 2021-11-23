@@ -31,6 +31,9 @@ function search() {
     .then(resonse => resonse.json())
     .then(books => {
         books["docs"].forEach(book => {
+            // book id will be its edition key
+            const bookId = book["edition_key"][0]
+
             // main row - will consist of a col-3 for image, a col-6 for book info, a col-3 for other buttons
             const row = document.createElement("div")
             row.classList = "row"
@@ -40,7 +43,7 @@ function search() {
             imgCol.classList = "col-3"
 
             // fetch cover img for book
-            fetch(`https://covers.openlibrary.org/b/OLID/${book["edition_key"][0]}-L.jpg`)
+            fetch(`https://covers.openlibrary.org/b/OLID/${bookId}-L.jpg`)
             .then(response => response.blob())
             .then(blob => {
                 const img = document.createElement("img")
@@ -73,12 +76,15 @@ function search() {
             // action buttons - for now, only "Add to watchlist" button
             const actionBtn = document.createElement("button")
             actionBtn.innerHTML = "Add to watchlist"
-            actionBtn.value = book["edition_key"][0]
+            actionBtn.value = bookId
             actionBtn.classList = "btn btn-primary"
 
             // if button is pressed, pass data into /action view and add book to user's watchlist (TODO in views.py)
             actionBtn.addEventListener("click", () => action())
             actionCol.appendChild(actionBtn)
+
+            // user can click on the div to be taken to the page with full book details
+            imgCol.onclick = infoCol.onclick = () => getBook(bookId)
 
             // append columns to the row & add the row to the container
             row.append(imgCol, infoCol, actionCol)
@@ -88,9 +94,17 @@ function search() {
     .catch(error => console.log(error))
 }
 
+function getBook(id) {
+    fetch(`https://openlibrary.org/books/${id}.json`)
+    .then(response => response.json())
+    .then(book => console.log(book))
+    .catch(error => console.log(`Error in getBook() function: ${error}`))
+}
+
 // testing: retrieving json data from /action view
 function action() {
     fetch("/action")
     .then(response => response.json())
     .then(data => console.log(data))
+    .catch(error => console.log(`Error in action() function: ${error}`))
 }
