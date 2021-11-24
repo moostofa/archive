@@ -91,6 +91,7 @@ function search() {
 
             const selectMenu = document.createElement("select")
             selectMenu.innerHTML += `<option selected>Add to my list</option>`
+            selectMenu.addEventListener("change", () => console.log(`action chosen: ${selectMenu.value}, book olid = ${bookId}`))
             MyList.forEach(element => {
                 const option = document.createElement("option")
                 option.value = element
