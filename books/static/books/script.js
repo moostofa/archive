@@ -23,8 +23,8 @@ function search() {
         document.getElementById("feedback").innerHTML = ""
     }
     
-    // clear .container first to remove previous search results
-    document.querySelector(".container").innerHTML = ""
+    // clear book-results first to remove previous search results
+    document.getElementById("book-results").innerHTML = ""
 
     // fetch and display all results
     fetch(`https://openlibrary.org/search.json?q=${q}`)
@@ -94,17 +94,10 @@ function search() {
 
             // append columns to the row & add the row to the container
             row.append(imgCol, infoCol, actionCol)
-            document.querySelector(".container").appendChild(row)
+            document.getElementById("book-results").appendChild(row)
         });
     })
-    .catch(error => console.log(error))
-}
-
-function getBook(id) {
-    fetch(`https://openlibrary.org/books/${id}.json`)
-    .then(response => response.json())
-    .then(book => console.log(book))
-    .catch(error => console.log(`Error in getBook() function: ${error}`))
+    .catch(error => console.log(`Error in search() function: ${error}`))
 }
 
 // testing: retrieving json data from /action view

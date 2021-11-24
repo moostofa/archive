@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
-from django.db.models import Model, ForeignKey, CASCADE
+from django.db.models import CASCADE, ForeignKey, Model
 from django.db.models.fields import TextField
+
 
 class User(AbstractUser):
     pass

@@ -1,5 +1,3 @@
-
-   
 {% load static %}
 
 <!DOCTYPE html>
@@ -13,11 +11,86 @@
     <title>Books</title>
 </head>
 <body>
-    <h1>Books</h1>
-    <input autofocus placeholder="Search" type="text" name="q" id="q">
-    <button id="search">Search</button>
-    <p id="feedback"></p>
-    <div class="container"></div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'index' %}">Archives</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Books</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Movies</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Anime</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Manga</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav ml-auto">
+              <!-- Display "logout" if user is logged in, else "login" and "register"-->
+              {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Logout</button>
+                    </a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Login</button>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Register</button>
+                    </a>
+                </li>
+              {% endif %}
+          </ul>
+        </div>
+      </nav>
+    <!-- Message will appear if user submits a form with an invalid username or mismatched passwords -->
+    {% if message and login or register %}
+        <h3>{{ message }}</h3>
+    {% endif %}
+    <!-- Display 1. login form, or 2. register form, or 3. search -->
+    {% if login %}
+        <div id="login-view">
+            <h1>Login</h1>
+            <form action="{% url 'login' %}" method="post">
+                {% csrf_token %}
+                {{ login_form.as_p }}
+                <input type="submit" value="Login" class="btn btn-primary">
+                <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+            </form>
+        </div>
+    {% elif register %}
+        <div id="register-view">
+            <h1>Register</h1>
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                {{ register_form.as_p }}
+                <input type="submit" value="Register" class="btn btn-primary">
+                <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </form>
+        </div>
+    {% else %}
+        <div id="search-view">
+            <h1>Books</h1>
+            <input autofocus placeholder="Search" type="text" name="q" id="q">
+            <button id="search">Search</button>
+            <p id="feedback"></p>
+            <div id="book-results" class="container"></div>
+        </div>
+    {% endif %}
 </body>
 </html>
 
