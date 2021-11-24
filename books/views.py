@@ -15,10 +15,15 @@ class LoginForm(Form):
     )
 
 
+# register form to display to use - inherits from LoginForm + an email field
 class RegisterForm(LoginForm):
     email = CharField(label="", 
         widget=EmailInput(attrs={"placeholder": "Email"})
     )
+    confirm_password = CharField(max_length=20, label="", 
+        widget=PasswordInput(attrs={"placeholder": "Confirm password"})
+    )
+    field_order = ["username", "email", "password", "confirm_password"]
 
 # display index page
 def index(request):
