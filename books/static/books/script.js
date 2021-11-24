@@ -7,6 +7,13 @@ const FIELDS = {
     "Number of pages": "number_of_pages_median"
 }
 
+const MyList = [
+    "read",
+    "unread",
+    "purchased",
+    "dropped"
+]
+
 // listen for click on "search" button
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("search").addEventListener("click", () => search())
@@ -82,15 +89,15 @@ function search() {
             const actionCol = document.createElement("div")
             actionCol.classList = "col-3"
 
-            // action buttons - for now, only "Add to watchlist" button
-            const actionBtn = document.createElement("button")
-            actionBtn.innerHTML = "Add to watchlist"
-            actionBtn.value = bookId
-            actionBtn.classList = "btn btn-primary"
-
-            // if button is pressed, pass data into /action view and add book to user's watchlist (TODO in views.py)
-            actionBtn.addEventListener("click", () => action())
-            actionCol.appendChild(actionBtn)
+            const selectMenu = document.createElement("select")
+            selectMenu.innerHTML += `<option selected>Add to my list</option>`
+            MyList.forEach(element => {
+                const option = document.createElement("option")
+                option.value = element
+                option.innerHTML = element[0].toUpperCase() + element.substring(1)
+                selectMenu.appendChild(option)
+            })
+            actionCol.appendChild(selectMenu)
 
             // append columns to the row & add the row to the container
             row.append(imgCol, infoCol, actionCol)

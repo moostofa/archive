@@ -30,6 +30,7 @@ class RegisterForm(LoginForm):
         widget=PasswordInput(attrs={"placeholder": "Confirm password"})
     )
     field_order = ["username", "email", "password", "confirm_password"]
+    
 
 # display index page
 def index(request):
