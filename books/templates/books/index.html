@@ -35,19 +35,29 @@
             </li>
           </ul>
           <ul class="navbar-nav ml-auto">
-              <li class="nav-item">
-                  <a class="nav-link" href="{% url 'login' %}">
-                      <button class="btn btn-md btn-outline-light" type="button">Login</button>
-                  </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'register' %}">
-                    <button class="btn btn-md btn-outline-light" type="button">Register</button>
-                </a>
-            </li>
+              <!-- Display "logout" if user is logged in, else "login" and "register"-->
+              {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Logout</button>
+                    </a>
+                </li>
+              {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Login</button>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'register' %}">
+                        <button class="btn btn-md btn-outline-light" type="button">Register</button>
+                    </a>
+                </li>
+              {% endif %}
           </ul>
         </div>
       </nav>
+    <!-- Message will appear if user submits a form with an invalid username or mismatched passwords -->
     {% if message and login or register %}
         <h3>{{ message }}</h3>
     {% endif %}
