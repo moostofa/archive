@@ -40,10 +40,15 @@
                       <button class="btn btn-md btn-outline-light" type="button">Login</button>
                   </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">
+                    <button class="btn btn-md btn-outline-light" type="button">Register</button>
+                </a>
+            </li>
           </ul>
         </div>
       </nav>
-
+    <!-- Display 1. login form, or 2. register form, or 3. search -->
     {% if login %}
         <div id="login-view">
             <h1>Login</h1>
@@ -51,11 +56,19 @@
                 {% csrf_token %}
                 {{ login_form.as_p }}
                 <input type="submit" value="Login" class="btn btn-primary">
-                <p>Don't have an account? Register</p>
+                <p>Don't have an account? <a href="{% url 'register' %}">Register</a></p>
             </form>
         </div>
     {% elif register %}
-        <div id="register-view"><h1>register view div</h1></div>
+        <div id="register-view">
+            <h1>Register</h1>
+            <form action="{% url 'register' %}" method="post">
+                {% csrf_token %}
+                {{ login_form.as_p }}
+                <input type="submit" value="Register" class="btn btn-primary">
+                <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </form>
+        </div>
     {% else %}
         <div id="search-view">
             <h1>Books</h1>
