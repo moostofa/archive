@@ -10,10 +10,6 @@
     color: red;
 }
 
-#login-view, #register-view {
-    display: none;
-}
-
 body {
     text-align: center;
 }
