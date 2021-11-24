@@ -48,6 +48,9 @@
           </ul>
         </div>
       </nav>
+    {% if message and login or register %}
+        <h3>{{ message }}</h3>
+    {% endif %}
     <!-- Display 1. login form, or 2. register form, or 3. search -->
     {% if login %}
         <div id="login-view">
@@ -64,7 +67,7 @@
             <h1>Register</h1>
             <form action="{% url 'register' %}" method="post">
                 {% csrf_token %}
-                {{ login_form.as_p }}
+                {{ register_form.as_p }}
                 <input type="submit" value="Register" class="btn btn-primary">
                 <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </form>
