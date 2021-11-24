@@ -6,9 +6,12 @@ from django.db.models.fields import TextField
 class User(AbstractUser):
     pass
 
-class Watchlist(Model):
+class ReadingList(Model):
     user = ForeignKey(
         User,
         on_delete=CASCADE
     )
-    books = TextField()
+    read = TextField(blank=True)
+    unread = TextField(blank=True)
+    purchased = TextField(blank=True)
+    dropped = TextField(blank=True)
