@@ -124,11 +124,3 @@ function addToReadingList(bookId, listName) {
     .then(result => console.log(result))
     .catch(error => console.log(`Error in addToReadingList() function - ${error}`))
 }
-
-// testing: retrieving json data from /action view
-function action() {
-    fetch("/action")
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.log(`Error in action() function: ${error}`))
-}
