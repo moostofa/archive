@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // search for a book by title, author and more (need to filter this later)
 function search() {
+    fetch("/mybooks")
+    .then(response => response.json())
+    .then(result => console.log(result))
+
     // get search title and check that user actually entered something
     const q = document.getElementById("q").value.trim()
     if (q === "") {

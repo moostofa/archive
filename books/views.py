@@ -1,5 +1,6 @@
 import json
 from ast import literal_eval
+from typing import get_args
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -152,3 +153,14 @@ def add(request):
     users_list.save(update_fields = [list_name])
 
     return JsonResponse({f"Books in {list_name} list": book_list})
+
+
+# return in JSON format all of the books in the user's list
+@login_required
+def get_all_books(request):
+    fields = ["read", "unread", "purchased", "dropped"]
+    users_list = ReadingList.objects.get(user = request.user)
+    books = {}
+    for field in fields:
+        books[field] = literal_eval(getattr(users_list, field))
+    return JsonResponse({"books": books})
