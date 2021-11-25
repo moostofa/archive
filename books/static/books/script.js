@@ -7,12 +7,12 @@ const FIELDS = {
     "Number of pages": "number_of_pages_median"
 }
 
-const ReadingList = [
-    "read",
-    "unread",
-    "purchased",
-    "dropped"
-]
+const ReadingList = {
+    "read": [],
+    "unread": [],
+    "purchased": [],
+    "dropped": []
+}
 
 // listen for click on "search" button
 document.addEventListener("DOMContentLoaded", () => {
@@ -85,7 +85,7 @@ function search() {
             })
             infoCol.appendChild(ul)
 
-            // 3rd col will display actions like add to watchlist and... (more features to add later)
+            // 3rd col will display a select menu of reading list categories
             const actionCol = document.createElement("div")
             actionCol.classList = "col-3"
 
@@ -93,7 +93,7 @@ function search() {
             selectMenu.innerHTML += `<option selected>Add to my list</option>`
 
             // create options for user to add book to any of their reading lists
-            ReadingList.forEach(element => {
+            Object.keys(ReadingList).forEach(element => {
                 const option = document.createElement("option")
                 option.value = element
                 option.innerHTML = element[0].toUpperCase() + element.substring(1)

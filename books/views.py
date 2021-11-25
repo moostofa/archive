@@ -1,4 +1,5 @@
 import json
+from ast import literal_eval
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -87,7 +88,7 @@ def register(request):
             })
         # log user in and redirect to index
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("books:index"))
 
 
 # allow user to login
@@ -115,23 +116,39 @@ def login_view(request):
             })
         # log user in and redirect to index
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("books:index"))
 
 
 # log user out 
 # (btw, on google, saw something like configuring LOGIN_REDIRECT_URL and LOGOUT_REDIRECT_URL in settings.py)
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("books:index"))
 
 
 # add the book to the user's reading list of choice
 @csrf_exempt
+@login_required
 def add(request):
     # request method can only be post for this route
     if request.method != "POST":
         return HttpResponse("Error - this route can only be accessed via a POST request")
     
-    # TODO: add book to user's reading list (ReadingList Model)
-    data = json.loads(request.body)
-    return JsonResponse({"From view - Book OLID": data["bookId"], "List to add to": data["listName"]})
+    # retrieve POST data
+    data: dict = json.loads(request.body)
+    book_id = data.get("bookId", "")
+    list_name = data.get("listName", "")
+
+    # if user doesn't have any items in their list, a new ReadingList object is created, else get the users existing list
+    users_list = ReadingList.objects.get_or_create(user = request.user)[0]
+
+    # get the current list of books in the user's list, and add the new book
+    book_list: list = literal_eval(getattr(users_list, list_name))
+    book_list.append(book_id)
+    book_list = f"{book_list}"
+
+    # update model field
+    setattr(users_list, list_name, book_list)
+    users_list.save(update_fields = [list_name])
+
+    return JsonResponse({f"Books in {list_name} list": book_list})

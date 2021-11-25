@@ -11,7 +11,7 @@ class ReadingList(Model):
         User,
         on_delete=CASCADE
     )
-    read = TextField(blank=True)
-    unread = TextField(blank=True)
-    purchased = TextField(blank=True)
-    dropped = TextField(blank=True)
+    read = TextField(default="[]")
+    unread = TextField(default="[]")
+    purchased = TextField(default="[]")
+    dropped = TextField(default="[]")
