@@ -1,6 +1,5 @@
 import json
 from ast import literal_eval
-from typing import get_args
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -122,6 +121,7 @@ def login_view(request):
 
 # log user out 
 # (btw, on google, saw something like configuring LOGIN_REDIRECT_URL and LOGOUT_REDIRECT_URL in settings.py)
+@login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("books:index"))
@@ -129,11 +129,14 @@ def logout_view(request):
 
 # add the book to the user's reading list of choice
 @csrf_exempt
-@login_required
 def add(request):
     # request method can only be post for this route
     if request.method != "POST":
         return HttpResponse("Error - this route can only be accessed via a POST request")
+    
+    # user must be logged in to add a book to their reading list
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "login required to add to reading list. TODO: hide select menu if user is not logged in"})
     
     # retrieve POST data
     data: dict = json.loads(request.body)
@@ -144,23 +147,24 @@ def add(request):
     users_list = ReadingList.objects.get_or_create(user = request.user)[0]
 
     # get the current list of books in the user's list, and add the new book
-    book_list: list = literal_eval(getattr(users_list, list_name))
-    book_list.append(book_id)
-    book_list = f"{book_list}"
+    book_list: set = set(literal_eval(getattr(users_list, list_name)))
+    book_list.add(book_id)
+    book_list = f"{list(book_list)}"
 
     # update model field
     setattr(users_list, list_name, book_list)
     users_list.save(update_fields = [list_name])
+    return JsonResponse({f"Books in my {list_name} list": book_list})
 
-    return JsonResponse({f"Books in {list_name} list": book_list})
 
-
-# return in JSON format all of the books in the user's list
-@login_required
+# return in JSON format all of the books in the user's list if logged in. If not, return empty lists
 def get_all_books(request):
     fields = ["read", "unread", "purchased", "dropped"]
-    users_list = ReadingList.objects.get(user = request.user)
-    books = {}
-    for field in fields:
-        books[field] = literal_eval(getattr(users_list, field))
-    return JsonResponse({"books": books})
+    if not request.user.is_authenticated:
+        return JsonResponse({"books": {field: [] for field in fields}})
+    else:
+        users_list = ReadingList.objects.get(user = request.user)
+        books = {}
+        for field in fields:
+            books[field] = literal_eval(getattr(users_list, field))
+        return JsonResponse({"books": books})
