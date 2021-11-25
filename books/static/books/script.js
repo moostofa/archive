@@ -86,22 +86,7 @@ function search() {
             infoCol.appendChild(ul)
 
             // 3rd col will display a select menu of reading list categories
-            const actionCol = document.createElement("div")
-            actionCol.classList = "col-3"
-
-            const selectMenu = document.createElement("select")
-            selectMenu.innerHTML += `<option selected>Add to my list</option>`
-
-            // create options for user to add book to any of their reading lists
-            Object.keys(ReadingList).forEach(element => {
-                const option = document.createElement("option")
-                option.value = element
-                option.innerHTML = element[0].toUpperCase() + element.substring(1)
-                selectMenu.appendChild(option)
-            })
-            // listen for an option select and add the book to that user's chosen list
-            selectMenu.addEventListener("change", () => addToReadingList(bookId, selectMenu.value))
-            actionCol.appendChild(selectMenu)
+            const actionCol = createActionCol()
 
             // append columns to the row & add the row to the container
             row.append(imgCol, infoCol, actionCol)
@@ -109,6 +94,26 @@ function search() {
         });
     })
     .catch(error => console.log(`Error in search() function: ${error}`))
+}
+
+function createActionCol() {
+    const actionCol = document.createElement("div")
+    actionCol.classList = "col-3"
+
+    const selectMenu = document.createElement("select")
+    selectMenu.innerHTML += `<option selected disabled>Add to my list</option>`
+
+    // create options for user to add book to any of their reading lists
+    Object.keys(ReadingList).forEach(element => {
+        const option = document.createElement("option")
+        option.value = element
+        option.innerHTML = element[0].toUpperCase() + element.substring(1)
+        selectMenu.appendChild(option)
+    })
+    // listen for an option select and add the book to that user's chosen list
+    selectMenu.addEventListener("change", () => addToReadingList(bookId, selectMenu.value))
+    actionCol.appendChild(selectMenu)
+    return actionCol
 }
 
 // send POST data to /add in views.py to add book to user's reading list
@@ -123,12 +128,4 @@ function addToReadingList(bookId, listName) {
     .then(response => response.json())
     .then(result => console.log(result))
     .catch(error => console.log(`Error in addToReadingList() function - ${error}`))
-}
-
-// testing: retrieving json data from /action view
-function action() {
-    fetch("/action")
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.log(`Error in action() function: ${error}`))
 }
