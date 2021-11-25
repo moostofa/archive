@@ -7,7 +7,7 @@ const FIELDS = {
     "Number of pages": "number_of_pages_median"
 }
 
-const MyList = [
+const ReadingList = [
     "read",
     "unread",
     "purchased",
@@ -91,13 +91,16 @@ function search() {
 
             const selectMenu = document.createElement("select")
             selectMenu.innerHTML += `<option selected>Add to my list</option>`
-            selectMenu.addEventListener("change", () => console.log(`action chosen: ${selectMenu.value}, book olid = ${bookId}`))
-            MyList.forEach(element => {
+
+            // create options for user to add book to any of their reading lists
+            ReadingList.forEach(element => {
                 const option = document.createElement("option")
                 option.value = element
                 option.innerHTML = element[0].toUpperCase() + element.substring(1)
                 selectMenu.appendChild(option)
             })
+            // listen for an option select and add the book to that user's chosen list
+            selectMenu.addEventListener("change", () => addToReadingList(bookId, selectMenu.value))
             actionCol.appendChild(selectMenu)
 
             // append columns to the row & add the row to the container
@@ -106,6 +109,20 @@ function search() {
         });
     })
     .catch(error => console.log(`Error in search() function: ${error}`))
+}
+
+// send POST data to /add in views.py to add book to user's reading list
+function addToReadingList(bookId, listName) {
+    fetch("/add", {
+        method: "POST",
+        body: JSON.stringify({
+            "bookId": bookId,
+            "listName": listName
+        })
+    })
+    .then(response => response.json())
+    .then(result => console.log(result))
+    .catch(error => console.log(`Error in addToReadingList() function - ${error}`))
 }
 
 // testing: retrieving json data from /action view
