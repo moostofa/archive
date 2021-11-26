@@ -39,6 +39,11 @@
               <!-- Display "logout" if user is logged in, else "login" and "register"-->
               {% if user.is_authenticated %}
                 <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <button class="btn btn-md btn-outline-light" type="button">My profile</button>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'books:logout' %}">
                         <button class="btn btn-md btn-outline-light" type="button">Logout</button>
                     </a>
@@ -96,5 +101,5 @@
 </html>
 
 {% block script %}
-    <script src="{% static 'books/script.js'%}"></script>
+    <script type="module" src="{% static 'books/script.js'%}"></script>
 {% endblock %}
