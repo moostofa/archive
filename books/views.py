@@ -140,8 +140,8 @@ def add(request):
     
     # retrieve POST data
     data: dict = json.loads(request.body)
-    book_id = data.get("bookId", "")
-    list_name = data.get("listName", "")
+    book_id = data["bookId"]
+    list_name = data["listName"]
 
     # if user doesn't have any items in their list, a new ReadingList object is created, else get the users existing list
     users_list = ReadingList.objects.get_or_create(user = request.user)[0]

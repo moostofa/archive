@@ -26,7 +26,7 @@ function search() {
     document.getElementById("book-results").innerHTML = ""
 
     // fetch all of user's books in their reading list from model
-    fetch("/mybooks")
+    fetch("/books/mybooks")
     .then(response => response.json())
     .then(result => {
         // keys include ReadingList model fields, and values are arrays of bookIds
@@ -130,7 +130,7 @@ function search() {
 
 // send POST data to /add in views.py to add book to user's reading list
 function addToReadingList(bookId, listName) {
-    fetch("/add", {
+    fetch("/books/add", {
         method: "POST",
         body: JSON.stringify({
             "bookId": bookId,
