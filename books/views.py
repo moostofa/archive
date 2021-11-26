@@ -136,7 +136,7 @@ def add(request):
     
     # user must be logged in to add a book to their reading list
     if not request.user.is_authenticated:
-        return JsonResponse({"error": "login required to add to reading list. TODO: hide select menu if user is not logged in"})
+        return JsonResponse({"UserNotLoggedIn": True})
     
     # retrieve POST data
     data: dict = json.loads(request.body)
@@ -147,6 +147,7 @@ def add(request):
     users_list = ReadingList.objects.get_or_create(user = request.user)[0]
 
     # get the current list of books in the user's list, and add the new book
+    # converting to a set to prevent duplicate book_ids
     book_list: set = set(literal_eval(getattr(users_list, list_name)))
     book_list.add(book_id)
     book_list = f"{list(book_list)}"
@@ -154,7 +155,7 @@ def add(request):
     # update model field
     setattr(users_list, list_name, book_list)
     users_list.save(update_fields = [list_name])
-    return JsonResponse({f"Books in my {list_name} list": book_list})
+    return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
 
 
 # return in JSON format all of the books in the user's list if logged in. If not, return empty lists

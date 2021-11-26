@@ -62,7 +62,7 @@ function search() {
                     } 
                     imgCol.appendChild(img)
                 })
-                .catch(error => console.log(error))
+                .catch(error => console.log(`Error in search() function - cover image fetch() - failed to fetch cover image from openlibrary API - ${error}`))
     
                 // 2nd col to display info about the book
                 const infoCol = document.createElement("div")
@@ -84,32 +84,47 @@ function search() {
                 })
                 infoCol.appendChild(ul)
     
-                // 3rd col will display a select menu of reading list options
+                // 3rd col will tell user if the book is in their reading list, or, display a select menu of reading lists they can add to
                 const actionCol = document.createElement("div")
                 actionCol.classList = "col-3"
-    
-                const selectMenu = document.createElement("select")
-                selectMenu.innerHTML += `<option selected disabled>Add to my list</option>`
-    
-                // create options for user to add book to any of their reading lists
-                Object.keys(readingList).forEach(element => {
-                    const option = document.createElement("option")
-                    option.value = element
-                    option.innerHTML = element[0].toUpperCase() + element.substring(1)
-                    selectMenu.appendChild(option)
-                })
-                // listen for an option select and add the book to that user's chosen list
-                selectMenu.addEventListener("change", () => addToReadingList(bookId, selectMenu.value))
-                actionCol.appendChild(selectMenu)
-    
+
+                // find if the current book is in the user's reading list, and which specific list
+                let bookIdInReadingList = false
+                let whichReadingList = ""
+                for (let [key, value] of Object.entries(readingList)) {
+                    if (value.includes(bookId)) {   // values are arrays
+                        bookIdInReadingList = true
+                        whichReadingList = key
+                        break
+                    }
+                }
+                // if book is in the user's reading list, then say so, 
+                // else, create a select menu so user can add the book to their reading list
+                if (bookIdInReadingList) {
+                    actionCol.innerHTML += `<button>Book in ${whichReadingList} list</button>`
+                } else {
+                    const selectMenu = document.createElement("select")
+                    selectMenu.innerHTML += `<option selected disabled>Add to my list</option>`
+        
+                    // create options for user to add book to any of their reading lists
+                    Object.keys(readingList).forEach(element => {
+                        const option = document.createElement("option")
+                        option.value = element
+                        option.innerHTML = element[0].toUpperCase() + element.substring(1)
+                        selectMenu.appendChild(option)
+                    })
+                    // listen for an option select and add the book to that user's chosen list
+                    selectMenu.addEventListener("change", () => addToReadingList(bookId, selectMenu.value))
+                    actionCol.appendChild(selectMenu)
+                }
                 // append columns to the row & add the row to the container
                 row.append(imgCol, infoCol, actionCol)
                 document.getElementById("book-results").appendChild(row)
             });
         })
-        .catch(error => console.log(`Error in search() function - inner fetch(): ${error}`))
+        .catch(error => console.log(`Error in search() function - inner fetch() - failed to fetch search results from openlibrary API - ${error}`))
     })
-    .catch(error => console.log(`Error in search() function - outer fetch(): ${error}`))
+    .catch(error => console.log(`Error in search() function - outer fetch() - failed to fetch user's reading list from /mylist route - ${error}`))
 
 }
 
@@ -123,6 +138,10 @@ function addToReadingList(bookId, listName) {
         })
     })
     .then(response => response.json())
-    .then(result => console.log(result)) // debug purposes
-    .catch(error => console.log(`Error in addToReadingList() function - ${error}`))
+    .then(result => {
+        if (result["UserNotLoggedIn"])
+            return alert("You must be logged in to add a book to your reading list")
+        console.log(result)
+    })
+    .catch(error => console.log(`Error in addToReadingList() function - failed to POST data to /add route - ${error}`))
 }
