@@ -1,4 +1,4 @@
-import { getCoverImg, getDetails, displayArchiveOptions } from "./sections.js"
+import { getCoverImg, getDetails, displayArchiveOptions } from "../../../../static/js/sections.js"
 
 // the only fields that will be displayed when searching
 const FIELDS = {
