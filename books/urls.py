@@ -9,5 +9,6 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("books/add", views.add, name="add"),
+    path("profile/books", views.profile, name="profile"),
     path("books/mybooks", views.get_all_books, name="mybooks")
 ]

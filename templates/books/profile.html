@@ -1,0 +1,17 @@
+{% extends "global/base.html" %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'books/css/books.css' %}">
+{% endblock %}
+
+{% block title %} My books {% endblock %}
+
+{% block body%}
+    <h1>My books</h1>
+{% endblock %}
+
+{% block script %}
+    <script type="module" src="{% static 'books/js/profile.js'%}"></script>
+{% endblock %}

@@ -158,6 +158,11 @@ def add(request):
     return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
 
 
+# display user's profile & book list
+def profile(request):
+    return render (request, "books/profile.html")
+
+
 # return in JSON format all of the books in the user's list if logged in. If not, return empty lists
 def get_all_books(request):
     fields = ["read", "unread", "purchased", "dropped"]

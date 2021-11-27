@@ -41,7 +41,7 @@
               <!-- Display "logout" if user is logged in, else "login" and "register"-->
               {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="{% url 'books:profile' %}">
                         <button class="btn btn-md btn-outline-light" type="button">My profile</button>
                     </a>
                 </li>
