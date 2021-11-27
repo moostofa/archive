@@ -3,13 +3,14 @@
 {% load static %}
 
 {% block style %}
-<link rel="stylesheet" href="{% static 'books/css/books.css' %}">
+    <link rel="stylesheet" href="{% static 'books/css/books.css' %}">
 {% endblock %}
 
 {% block title %} My books {% endblock %}
 
 {% block body%}
     <h1>My books</h1>
+    <div id="profile-books"></div>
 {% endblock %}
 
 {% block script %}

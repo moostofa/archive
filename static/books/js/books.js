@@ -41,6 +41,8 @@ function search() {
             books["docs"].forEach(book => {
                 // book id will be its edition key
                 const bookId = book["edition_key"][0]
+                const key = book["key"]
+                console.log(`WORKS ID: ${key.substring(key.indexOf("OL"))} EDITION KEY ID: ${bookId}`)
     
                 // main row - will consist of a col-3 for image, a col-6 for book info, a col-3 for other buttons
                 const row = document.createElement("div")
