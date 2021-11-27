@@ -39,22 +39,20 @@ function search() {
         .then(resonse => resonse.json())
         .then(books => {
             books["docs"].forEach(book => {
-                // book id will be its edition key
-                const bookId = book["edition_key"][0]
-                const key = book["key"]
-                console.log(`WORKS ID: ${key.substring(key.indexOf("OL"))} EDITION KEY ID: ${bookId}`)
+                const bookId = book["key"].substring(book["key"].indexOf("OL"))
     
-                // main row - will consist of a col-3 for image, a col-6 for book info, a col-3 for other buttons
+                // a row for each search result
                 const row = document.createElement("div")
                 row.classList = "row"
 
-                const imgCol = getCoverImg(bookId)
+                const imgURL = `https://covers.openlibrary.org/b/OLID/${book["edition_key"][0]}-L.jpg`
+                const imgCol = getCoverImg(imgURL)
         
                 const infoCol = getDetails(book, FIELDS)
 
                 const actionCol = displayArchiveOptions(bookId, readingList)
     
-                // append columns to the row & add the row to the container
+                // append columns to the row & append the row to the container
                 row.append(imgCol, infoCol, actionCol)
                 document.getElementById("book-results").appendChild(row)
             });

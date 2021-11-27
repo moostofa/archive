@@ -4,14 +4,14 @@
 * Summary. Creates and returns a col-3 grid which displays a cover image for an object.
 * The object can be a book, movie, anime, or manga.
 
-* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
+* @param {String} imgURL => img URL path based on API documentation. Passed as paramater in each app's .js file, when calling this function.
 */
-const getCoverImg = objectId =>  {
+const getCoverImg = imgURL =>  {
     const imgCol = document.createElement("div")
     imgCol.classList = "col-3"
 
     // fetch cover img for book
-    fetch(`https://covers.openlibrary.org/b/OLID/${objectId}-L.jpg`)
+    fetch(imgURL)
     .then(response => response.blob())
     .then(blob => {
         const img = document.createElement("img")
@@ -91,7 +91,15 @@ const displayArchiveOptions = (objectId, usersList) => {
     // if book is in the user's reading list, then say so, 
     // else, create a select menu so user can add the book to their reading list
     if (bookIdInReadingList) {
-        actionCol.innerHTML += `<button>Book in ${whichReadingList} list</button>`
+        const btnWrapper = document.createElement("a")
+        btnWrapper.href = "/profile/books"
+
+        const btn = document.createElement("button")
+        btn.classList = "btn btn-primary"
+        btn.innerHTML = `Book in ${whichReadingList} list`
+
+        btnWrapper.appendChild(btn)
+        actionCol.appendChild(btnWrapper)
     } else {
         const selectMenu = document.createElement("select")
         selectMenu.innerHTML += `<option selected disabled>Add to my list</option>`
