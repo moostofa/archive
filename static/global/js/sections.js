@@ -1,3 +1,5 @@
+// Reusable functions that can be used to generate rows for each search item returned from an API call
+
 /*
 * Summary. Creates and returns a col-3 grid which displays a cover image for an object.
 * The object can be a book, movie, anime, or manga.
