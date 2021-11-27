@@ -1,4 +1,9 @@
-// objectId can be bookId, movieId, animeId, or mangaId
+/*
+* Summary. Creates and returns a col-3 grid which displays a cover image for an object.
+* The object can be a book, movie, anime, or manga.
+
+* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
+*/
 const getCoverImg = objectId =>  {
     const imgCol = document.createElement("div")
     imgCol.classList = "col-3"
@@ -21,9 +26,19 @@ const getCoverImg = objectId =>  {
     return imgCol
 }
 
-// object can be a book, movie, anime, or manga
+/*
+* Summary. Creates and returns a col-6 grid which displays a cover image for the object.
+* The object can be a book, movie, anime, or manga. 
+
+* Description. 
+* The specific fields of the object to be displayed in this grid section should be passed in as an object (objectFields), 
+* with the key being any verbose name for the field, and the value being the actual key required to index into the JSON response provided by the API.
+
+
+* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} objectFields => will be specific to the API documentation for book, movie, anime and manga APIs.
+*/
 const getDetails = (object, objectFields) => {
-    // 2nd col to display info about the object
     const infoCol = document.createElement("div")
     infoCol.classList = "col-6"
 
@@ -45,10 +60,19 @@ const getDetails = (object, objectFields) => {
     return infoCol
 }
 
-// objectId can be bookId, movieId, animeId, or mangaId
-// usersList can be the user's readingList, movieList, animeList, or mangaList
+/*
+* Summary. Creates and returns a col-3 grid which provides the user options to add the object to their list.
+* The object can be a book, movie, anime, or manga. 
+
+* Description. 
+* Lists a user can add to include their read/purchased/dropped books or manga, 
+* or movies/anime they have watched, or plan to watch, etc.
+* Models for these are defined in the database.
+
+* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} usersList => an object with its values as a list, each list containing books in that users specific list.
+*/
 const displayArchiveOptions = (objectId, usersList) => {
-    // 3rd col will tell user if the book is in their reading list, or, display a select menu of reading lists they can add to
     const actionCol = document.createElement("div")
     actionCol.classList = "col-3"
 
