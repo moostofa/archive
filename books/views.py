@@ -164,11 +164,10 @@ def profile(request):
 
 
 # return in JSON format all of the books in the user's list 
-# empty values are returned if user is not logged in (TypeError), or user has not added anything to their reading list yet (DoesNotExist)
+# empty values are returned if user is not logged in (TypeError), or if user has not added anything to their reading list yet (DoesNotExist)
 def get_all_books(request):
     fields = ["read", "unread", "purchased", "dropped"]
     books = {}
-
     try:
         users_list = ReadingList.objects.get(user = request.user)
     except (ReadingList.DoesNotExist, TypeError):

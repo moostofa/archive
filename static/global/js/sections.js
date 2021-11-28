@@ -4,9 +4,10 @@
 * Summary. Creates and returns a col-3 grid which displays a cover image for an object.
 * The object can be a book, movie, anime, or manga.
 
-* @param {String} imgURL => img URL path based on API documentation. Passed as paramater in each app's .js file, when calling this function.
+* @param {String} (imgURL) => img URL path based on API documentation. Passed as paramater in each app's .js file, when calling this function.
+* @param {String} (imgAlt) => alt text for the img.
 */
-const getCoverImg = imgURL =>  {
+const getCoverImg = (imgURL, imgAlt) =>  {
     const imgCol = document.createElement("div")
     imgCol.classList = "col-3"
 
@@ -16,6 +17,7 @@ const getCoverImg = imgURL =>  {
     .then(blob => {
         const img = document.createElement("img")
         img.src = URL.createObjectURL(blob)
+        img.alt = imgAlt
 
         // if natural height/width is 1, then there is no cover img
         img.onload = () => {
@@ -37,8 +39,8 @@ const getCoverImg = imgURL =>  {
 * with the key being any verbose name for the field, and the value being the actual key required to index into the JSON response provided by the API.
 
 
-* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
-* @param {Object} objectFields => will be specific to the API documentation for book, movie, anime and manga APIs.
+* @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} (objectFields) => will be specific to the API documentation for book, movie, anime and manga APIs.
 */
 const getDetails = (object, objectFields) => {
     const infoCol = document.createElement("div")
@@ -71,8 +73,8 @@ const getDetails = (object, objectFields) => {
 * or movies/anime they have watched, or plan to watch, etc.
 * Models for these are defined in the database.
 
-* @param {Integer} objectId => can be bookId, movieId, animeId, or mangaId.
-* @param {Object} usersList => an object with its values as a list, each list containing books in that users specific list.
+* @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} (usersList) => an object with its values as a list, each list containing books in that users specific list.
 */
 const displayArchiveOptions = (objectId, usersList) => {
     const actionCol = document.createElement("div")

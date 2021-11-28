@@ -46,7 +46,7 @@ function search() {
                 row.classList = "row"
 
                 const imgURL = `https://covers.openlibrary.org/b/OLID/${book["edition_key"][0]}-L.jpg`
-                const imgCol = getCoverImg(imgURL)
+                const imgCol = getCoverImg(imgURL, book["title"])
         
                 const infoCol = getDetails(book, FIELDS)
 

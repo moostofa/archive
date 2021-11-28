@@ -6,6 +6,12 @@
     text-align: left;
 }
 
+.container {
+    background-color: darkkhaki;
+    margin-bottom: 2%;
+    padding: 10px;
+}
+
 #feedback {
     color: red;
 }
