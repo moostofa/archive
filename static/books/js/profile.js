@@ -1,4 +1,4 @@
-import { getCoverImg, getDetails, displayRemovalOptions } from "../../global/js/sections.js"
+import { getCoverImg, getDetails, displayRemovalOptions } from "../../global/js/helpers.js"
 
 const FIELDS = {
     "Title": "title",

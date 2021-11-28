@@ -1,4 +1,4 @@
-// Reusable functions that can be used to generate rows for each search item returned from an API call
+// Reusable helper functions that can be used to generate sections containing information for each search item returned from an API call
 
 /*
 * Summary. Creates and returns a col-3 grid which displays a cover image for an object.
@@ -25,25 +25,25 @@ export const getCoverImg = (imgURL, imgAlt) =>  {
 }
 
 /*
-* Summary. Creates and returns a col-6 grid which displays a cover image for the object.
-* The object can be a book, movie, anime, or manga. 
+* Summary. Creates and returns a col-6 grid which displays a cover image for the item.
+* The item can be a book, movie, anime, or manga. 
 
 * Description. 
-* The specific fields of the object to be displayed in this grid section should be passed in as an object (objectFields), 
+* The specific fields of the item to be displayed in this grid section should be passed in as an object (itemFields), 
 * with the key being any verbose name for the field, and the value being the actual key required to index into the JSON response provided by the API.
 
 
-* @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
-* @param {Object} (objectFields) => will be specific to the API documentation for book, movie, anime and manga APIs.
+* @param {Object} (item) => can be a book, movie, anime, or manga.
+* @param {Object} (itemFields) => will be specific to the API documentation for book, movie, anime and manga APIs.
 */
-export const getDetails = (object, objectFields) => {
+export const getDetails = (item, itemFields) => {
     const infoCol = document.createElement("div")
     infoCol.classList = "col-6"
 
-    // get the specific FIELDS of the object and save them as a list
+    // retrieve the specific fields of the item and save them as a list
     const ul = document.createElement("ul")
-    Object.entries(objectFields).forEach(([key, value]) => {
-        let fieldValue = object[value]
+    Object.entries(itemFields).forEach(([key, value]) => {
+        let fieldValue = item[value]
 
         // try limiting genres list to 5: a TypeError is raised if .slice() is used on an empty array of genres
         if (key === "Genres")
@@ -59,26 +59,22 @@ export const getDetails = (object, objectFields) => {
 }
 
 /*
-* Summary. Creates and returns a col-3 grid which provides the user options to add the object to their list.
-* The object can be a book, movie, anime, or manga. 
+* Summary. Creates and returns a col-3 grid which provides the user options to add the item to their list.
+* The item can be a book, movie, anime, or manga. 
+* The specific lists a user can add to are defined in models.py for each of the respective apps.
 
-* Description. 
-* Lists a user can add to include their read/purchased/dropped books or manga, 
-* or movies/anime they have watched, or plan to watch, etc.
-* Models for these are defined in the database.
-
-* @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
-* @param {Object} (usersList) => an object with its values as a list, each list containing books in that users specific list.
+* @param {Integer} (itemId) => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} (itemList) => an object with its values as a list, each list containing books in that users specific list.
 */
-export const displayArchiveOptions = (objectId, usersList) => {
+export const displayArchiveOptions = (itemId, itemList) => {
     const actionCol = document.createElement("div")
     actionCol.classList = "col-3"
 
     // find if the current book is in the user's reading list, and which specific list
     let bookIdInReadingList = false
     let whichReadingList = ""
-    for (let [key, value] of Object.entries(usersList)) {
-        if (value.includes(objectId)) {   // values are arrays
+    for (let [key, value] of Object.entries(itemList)) {
+        if (value.includes(itemId)) {   // values are arrays
             bookIdInReadingList = true
             whichReadingList = key
             break
@@ -101,20 +97,27 @@ export const displayArchiveOptions = (objectId, usersList) => {
         selectMenu.innerHTML += `<option selected disabled>Add to my list</option>`
 
         // create options for user to add book to any of their reading lists
-        Object.keys(usersList).forEach(element => {
+        Object.keys(itemList).forEach(element => {
             const option = document.createElement("option")
             option.value = element
             option.innerHTML = element[0].toUpperCase() + element.substring(1)
             selectMenu.appendChild(option)
         })
         // listen for an option select and add the book to that user's chosen list
-        selectMenu.addEventListener("change", () => addToReadingList(objectId, selectMenu.value, actionCol))
+        selectMenu.addEventListener("change", () => addToReadingList(itemId, selectMenu.value, actionCol))
         actionCol.appendChild(selectMenu)
     }
     return actionCol
 }
 
-export const displayRemovalOptions = (object) => {
+/*
+* Summary. Creates and returns a col-3 grid which provides the user options to update or delete items from their list(s).
+* The item can be a book, movie, anime, or manga. 
+
+* @param {Integer} (itemId) => can be bookId, movieId, animeId, or mangaId.
+* @param {Object} (itemList) => an object with its values as a list, each list containing books in that users specific list.
+*/
+export const displayRemovalOptions = (itemId, itemList) => {
     const actionCol = document.createElement("div")
     actionCol.classList = "col-3"
 
@@ -124,16 +127,18 @@ export const displayRemovalOptions = (object) => {
 
     const changeMenu = document.createElement("select")
     changeMenu.innerHTML += `<option selected disabled>Add to a different list</option>`
-    changeMenu.innerHTML += `<option>Read</option>`
-    changeMenu.innerHTML += `<option>Unread</option>`
-    changeMenu.innerHTML += `<option>Purchased</option>`
-    changeMenu.innerHTML += `<option>Dropped</option>`
 
+    Object.keys(itemList).forEach(element => {
+        const option = document.createElement("option")
+        option.value = element
+        option.innerHTML = element[0].toUpperCase() + element.substring(1)
+        changeMenu.appendChild(option)
+    })
     actionCol.append(removeBtn, changeMenu)
     return actionCol
 }
 
-// send POST data to /add in views.py to add book to user's reading list, and provide feedback to the user
+// send POST data to /books/add in views.py to add book to user's reading list, and provide feedback to the user by manipulating the div
 function addToReadingList(bookId, listName, div) {
     fetch("/books/add", {
         method: "POST",
