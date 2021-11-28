@@ -7,7 +7,7 @@
 * @param {String} (imgURL) => img URL path based on API documentation. Passed as paramater in each app's .js file, when calling this function.
 * @param {String} (imgAlt) => alt text for the img.
 */
-const getCoverImg = (imgURL, imgAlt) =>  {
+export const getCoverImg = (imgURL, imgAlt) =>  {
     const imgCol = document.createElement("div")
     imgCol.classList = "col-3"
 
@@ -18,12 +18,6 @@ const getCoverImg = (imgURL, imgAlt) =>  {
         const img = document.createElement("img")
         img.src = URL.createObjectURL(blob)
         img.alt = imgAlt
-
-        // if natural height/width is 1, then there is no cover img
-        img.onload = () => {
-            if (img.naturalHeight === 1)
-                imgCol.style.backgroundColor = "grey"
-        } 
         imgCol.appendChild(img)
     })
     .catch(error => console.log(`Failed to fetch cover image from openlibrary API - ${error}`))
@@ -42,7 +36,7 @@ const getCoverImg = (imgURL, imgAlt) =>  {
 * @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
 * @param {Object} (objectFields) => will be specific to the API documentation for book, movie, anime and manga APIs.
 */
-const getDetails = (object, objectFields) => {
+export const getDetails = (object, objectFields) => {
     const infoCol = document.createElement("div")
     infoCol.classList = "col-6"
 
@@ -76,7 +70,7 @@ const getDetails = (object, objectFields) => {
 * @param {Integer} (objectId) => can be bookId, movieId, animeId, or mangaId.
 * @param {Object} (usersList) => an object with its values as a list, each list containing books in that users specific list.
 */
-const displayArchiveOptions = (objectId, usersList) => {
+export const displayArchiveOptions = (objectId, usersList) => {
     const actionCol = document.createElement("div")
     actionCol.classList = "col-3"
 
@@ -114,14 +108,14 @@ const displayArchiveOptions = (objectId, usersList) => {
             selectMenu.appendChild(option)
         })
         // listen for an option select and add the book to that user's chosen list
-        selectMenu.addEventListener("change", () => addToReadingList(objectId, selectMenu.value))
+        selectMenu.addEventListener("change", () => addToReadingList(objectId, selectMenu.value, actionCol))
         actionCol.appendChild(selectMenu)
     }
     return actionCol
 }
 
-// send POST data to /add in views.py to add book to user's reading list
-function addToReadingList(bookId, listName) {
+// send POST data to /add in views.py to add book to user's reading list, and provide feedback to the user
+function addToReadingList(bookId, listName, div) {
     fetch("/books/add", {
         method: "POST",
         body: JSON.stringify({
@@ -133,9 +127,20 @@ function addToReadingList(bookId, listName) {
     .then(result => {
         if (result["UserNotLoggedIn"])
             return alert("You must be logged in to add a book to your reading list")
-        console.log(result)
+        
+        // create btn indicating that the book has been added to the user's reading list
+        div.innerHTML = ""
+        const btnWrapper = document.createElement("a")
+        btnWrapper.href = "/profile/books"
+
+        const btn = document.createElement("button")
+        btn.classList = "btn btn-primary"
+        btn.innerHTML = `Added to ${listName} list`
+
+        btnWrapper.appendChild(btn)
+        div.appendChild(btnWrapper)
+
+        return alert(`Successfully added the book to ${listName} list!`)
     })
     .catch(error => console.log(`Error in addToReadingList() function - failed to POST data to /add route - ${error}`))
 }
-
-export { getCoverImg, getDetails, displayArchiveOptions }
