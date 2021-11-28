@@ -158,7 +158,18 @@ def add(request):
     return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
 
 
+# remove a book from a chosen list
+def remove(request, book_id, list_name):
+    pass
+
+
+# remove a book from old list, and add it to the new list
+def update(request, book_id, old_list, new_list):
+    pass
+
+
 # display user's profile & book list
+@login_required
 def profile(request):
     return render (request, "books/profile.html")
 
