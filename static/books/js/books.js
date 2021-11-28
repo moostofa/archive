@@ -25,7 +25,7 @@ function search() {
         document.getElementById("feedback").innerHTML = ""
     }
     // clear book-results first to remove previous search results
-    document.getElementById("book-results").innerHTML = ""
+    document.getElementById("results-book").innerHTML = ""
 
     // fetch all of user's books in their reading list from model
     fetch("/books/mybooks")
@@ -38,6 +38,9 @@ function search() {
         fetch(`https://openlibrary.org/search.json?q=${q}`)
         .then(resonse => resonse.json())
         .then(books => {
+            const container = document.createElement("div")
+            container.classList = "container"
+
             books["docs"].forEach(book => {
                 const bookId = book["key"].substring(book["key"].indexOf("OL"))
     
@@ -45,17 +48,19 @@ function search() {
                 const row = document.createElement("div")
                 row.classList = "row"
 
-                const imgURL = `https://covers.openlibrary.org/b/OLID/${book["edition_key"][0]}-L.jpg`
+                const coverId = book["cover_i"]
+                const imgURL = `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`
                 const imgCol = getCoverImg(imgURL, book["title"])
-        
+
                 const infoCol = getDetails(book, FIELDS)
 
                 const actionCol = displayArchiveOptions(bookId, readingList)
     
                 // append columns to the row & append the row to the container
                 row.append(imgCol, infoCol, actionCol)
-                document.getElementById("book-results").appendChild(row)
-            });
+                container.appendChild(row)
+            })
+            document.getElementById("results-book").appendChild(container)
         })
         .catch(error => console.log(`Error in search() function - inner fetch() - failed to fetch search results from openlibrary API - ${error}`))
     })
