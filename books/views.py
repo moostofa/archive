@@ -163,14 +163,17 @@ def profile(request):
     return render (request, "books/profile.html")
 
 
-# return in JSON format all of the books in the user's list if logged in. If not, return empty lists
+# return in JSON format all of the books in the user's list 
+# empty values are returned if user is not logged in (TypeError), or user has not added anything to their reading list yet (DoesNotExist)
 def get_all_books(request):
     fields = ["read", "unread", "purchased", "dropped"]
-    if not request.user.is_authenticated:
-        return JsonResponse({"books": {field: [] for field in fields}})
-    else:
+    books = {}
+
+    try:
         users_list = ReadingList.objects.get(user = request.user)
-        books = {}
+    except (ReadingList.DoesNotExist, TypeError):
+        books = {field: [] for field in fields}
+    else:
         for field in fields:
             books[field] = literal_eval(getattr(users_list, field))
-        return JsonResponse({"books": books})
+    return JsonResponse({"books": books})
