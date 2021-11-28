@@ -114,6 +114,25 @@ export const displayArchiveOptions = (objectId, usersList) => {
     return actionCol
 }
 
+export const displayRemovalOptions = (object) => {
+    const actionCol = document.createElement("div")
+    actionCol.classList = "col-3"
+
+    const removeBtn = document.createElement("button")
+    removeBtn.innerHTML = "Remove from reading list"
+    removeBtn.classList = "btn btn-danger"
+
+    const changeMenu = document.createElement("select")
+    changeMenu.innerHTML += `<option selected disabled>Add to a different list</option>`
+    changeMenu.innerHTML += `<option>Read</option>`
+    changeMenu.innerHTML += `<option>Unread</option>`
+    changeMenu.innerHTML += `<option>Purchased</option>`
+    changeMenu.innerHTML += `<option>Dropped</option>`
+
+    actionCol.append(removeBtn, changeMenu)
+    return actionCol
+}
+
 // send POST data to /add in views.py to add book to user's reading list, and provide feedback to the user
 function addToReadingList(bookId, listName, div) {
     fetch("/books/add", {

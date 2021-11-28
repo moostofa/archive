@@ -1,4 +1,4 @@
-import { getCoverImg, getDetails, displayArchiveOptions } from "../../global/js/sections.js"
+import { getCoverImg, getDetails, displayRemovalOptions } from "../../global/js/sections.js"
 
 const FIELDS = {
     "Title": "title",
@@ -40,7 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const infoCol = getDetails(book, FIELDS)
 
-                    row.append(imgCol, infoCol)
+                    const actionCol = displayRemovalOptions(book, readingList)
+
+                    row.append(imgCol, infoCol, actionCol)
                     container.appendChild(row)
                 })
                 .catch(error => console.log(`Error - failed to fetch() books from openlibrary - ${error}`))
