@@ -140,19 +140,19 @@ def add(request):
     
     # retrieve POST data
     data: dict = json.loads(request.body)
-    book_id = data["bookId"]
-    list_name = data["listName"]
+    book_id = data["item_id"]
+    list_name = data["list_name"]
 
     # if user doesn't have any items in their list, a new ReadingList object is created, else get the users existing list
     users_list = ReadingList.objects.get_or_create(user = request.user)[0]
 
     # get the current list of books in the user's list, and add the new book
     # converting to a set to prevent duplicate book_ids
-    book_list: set = set(literal_eval(getattr(users_list, list_name)))
+    book_list: list = literal_eval(getattr(users_list, list_name))
     book_list.add(book_id)
-    book_list = f"{list(book_list)}"
+    book_list = f"{book_list}"
 
-    # update model field
+    # update model instance
     setattr(users_list, list_name, book_list)
     users_list.save(update_fields = [list_name])
     return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
@@ -166,11 +166,22 @@ def remove(request):
     if request.method != "POST":
         return HttpResponse("Error - this route can only be accessed via a POST request")
 
+    # retrieve POST data
     data: dict = json.loads(request.body)
     book_id = data["item_id"]
     list_name = data["list_name"]
 
-    return JsonResponse({"Got it!": {"book_id": book_id, "list_name": list_name}})
+    users_list = ReadingList.objects.get(user = request.user)
+
+    # remove item from user's list
+    book_list: list = literal_eval(getattr(users_list, list_name))
+    book_list.remove(book_id)
+    book_list = f"{book_list}"
+
+    # update model instance
+    setattr(users_list, list_name, book_list)
+    users_list.save(update_fields = [list_name])
+    return JsonResponse({"success": True})
 
 
 # remove a book from old list, and add it to the new list

@@ -152,8 +152,8 @@ function add(bookId, listName, div) {
     fetch("/books/add", {
         method: "POST",
         body: JSON.stringify({
-            "bookId": bookId,
-            "listName": listName
+            "book_id": bookId,
+            "list_name": listName
         })
     })
     .then(response => response.json())
@@ -175,7 +175,7 @@ function add(bookId, listName, div) {
 
         return alert(`Successfully added the book to ${listName} list!`)
     })
-    .catch(error => console.log(`Error in add() function - failed to POST data to /add route - ${error}`))
+    .catch(error => console.log(`Error in add() function - failed to add an item to a list - ${error}`))
 }
 
 // remove a chosen item from a list
@@ -188,5 +188,11 @@ function remove(itemId, listName) {
         })
     })
     .then(response => response.json())
-    .then(result => console.log(result))
+    .then(result => {
+        if (result["success"]) {
+            window.location.reload()
+            return alert(`Successfully removed item from ${listName} list.`)
+        }
+    })
+    .catch(error => console.log(`Error in remove() function - failed to delete an item from a list - ${error}`))
 }
