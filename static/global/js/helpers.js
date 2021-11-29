@@ -104,7 +104,7 @@ export const displayArchiveOptions = (itemId, itemList) => {
             selectMenu.appendChild(option)
         })
         // listen for an option select and add the book to that user's chosen list
-        selectMenu.addEventListener("change", () => addToReadingList(itemId, selectMenu.value, actionCol))
+        selectMenu.addEventListener("change", () => add(itemId, selectMenu.value, actionCol))
         actionCol.appendChild(selectMenu)
     }
     return actionCol
@@ -125,6 +125,15 @@ export const displayRemovalOptions = (itemId, itemList) => {
     removeBtn.innerHTML = "Remove from reading list"
     removeBtn.classList = "btn btn-danger"
 
+    let listName = ""
+    for (let [key, value] of Object.entries(itemList)) {
+        if (value.includes(itemId)) {
+            listName = key
+            break
+        }
+    }
+    removeBtn.addEventListener("click", () => remove(itemId, listName))
+
     const changeMenu = document.createElement("select")
     changeMenu.innerHTML += `<option selected disabled>Add to a different list</option>`
 
@@ -139,7 +148,7 @@ export const displayRemovalOptions = (itemId, itemList) => {
 }
 
 // send POST data to /books/add in views.py to add book to user's reading list, and provide feedback to the user by manipulating the div
-function addToReadingList(bookId, listName, div) {
+function add(bookId, listName, div) {
     fetch("/books/add", {
         method: "POST",
         body: JSON.stringify({
@@ -166,5 +175,18 @@ function addToReadingList(bookId, listName, div) {
 
         return alert(`Successfully added the book to ${listName} list!`)
     })
-    .catch(error => console.log(`Error in addToReadingList() function - failed to POST data to /add route - ${error}`))
+    .catch(error => console.log(`Error in add() function - failed to POST data to /add route - ${error}`))
+}
+
+// remove a chosen item from a list
+function remove(itemId, listName) {
+    fetch("/books/remove", {
+        method: "POST",
+        body: JSON.stringify({
+            "item_id": itemId,
+            "list_name": listName
+        })
+    })
+    .then(response => response.json())
+    .then(result => console.log(result))
 }

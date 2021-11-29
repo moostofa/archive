@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const infoCol = getDetails(book, FIELDS)
 
-                    const actionCol = displayRemovalOptions(book, readingList)
+                    const actionCol = displayRemovalOptions(id, readingList)
 
                     row.append(imgCol, infoCol, actionCol)
                     container.appendChild(row)
