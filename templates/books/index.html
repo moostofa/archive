@@ -1,0 +1,23 @@
+{% extends "global/base.html" %}
+
+{% load static %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'books/css/books.css' %}">
+{% endblock %}
+
+{% block title %} Books {% endblock %} 
+
+{% block body %} 
+    <div id="search-view">
+        <h1>Books</h1>
+        <input autofocus placeholder="Search" type="text" name="q" id="q">
+        <button id="search">Search</button>
+        <p id="feedback"></p>
+        <div id="results-book"></div>
+    </div>
+{% endblock %}
+
+{% block script%} 
+    <script type="module" src="{% static 'books/js/books.js'%}"></script>
+{% endblock %}

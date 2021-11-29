@@ -1,4 +1,8 @@
+import json
+from ast import literal_eval
+
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.forms import Form
 from django.forms.fields import CharField
@@ -7,8 +11,9 @@ from django.http import JsonResponse
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 
-from .models import User
+from .models import ReadingList, User
 
 
 # login form to display to the user
@@ -83,7 +88,7 @@ def register(request):
             })
         # log user in and redirect to index
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("books:index"))
 
 
 # allow user to login
@@ -111,18 +116,119 @@ def login_view(request):
             })
         # log user in and redirect to index
         login(request, user)
-        return HttpResponseRedirect(reverse("index"))
+        return HttpResponseRedirect(reverse("books:index"))
 
 
 # log user out 
 # (btw, on google, saw something like configuring LOGIN_REDIRECT_URL and LOGOUT_REDIRECT_URL in settings.py)
+@login_required
 def logout_view(request):
     logout(request)
-    return HttpResponseRedirect(reverse("index"))
+    return HttpResponseRedirect(reverse("books:index"))
 
-# testing fetch() from script.js
-def action(request):
-    json = {
-        "message": "It worked!!",
-    }
-    return JsonResponse(json)
+
+# add the book to the user's reading list of choice
+@csrf_exempt
+def add(request):
+    # request method can only be post for this route
+    if request.method != "POST":
+        return HttpResponse("Error - this route can only be accessed via a POST request")
+    
+    # user must be logged in to add a book to their reading list
+    if not request.user.is_authenticated:
+        return JsonResponse({"UserNotLoggedIn": True})
+    
+    # retrieve POST data
+    data: dict = json.loads(request.body)
+    book_id = data["item_id"]
+    list_name = data["list_name"]
+
+    # if user doesn't have any items in their list, a new ReadingList object is created, else get the users existing list
+    users_list = ReadingList.objects.get_or_create(user = request.user)[0]
+
+    # get the current list of books in the user's list, and add the new book
+    # converting to a set to prevent duplicate book_ids
+    book_list: list = literal_eval(getattr(users_list, list_name))
+    book_list.add(book_id)
+    book_list = f"{book_list}"
+
+    # update model instance
+    setattr(users_list, list_name, book_list)
+    users_list.save(update_fields = [list_name])
+    return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
+
+
+# remove a book from a chosen list
+@csrf_exempt
+@login_required
+def remove(request):
+    # request method can only be post for this route
+    if request.method != "POST":
+        return HttpResponse("Error - this route can only be accessed via a POST request")
+
+    # retrieve POST data
+    data: dict = json.loads(request.body)
+    book_id = data["item_id"]
+    list_name = data["list_name"]
+
+    users_list = ReadingList.objects.get(user = request.user)
+
+    # remove item from user's list
+    book_list: list = literal_eval(getattr(users_list, list_name))
+    book_list.remove(book_id)
+    book_list = f"{book_list}"
+
+    # update model instance
+    setattr(users_list, list_name, book_list)
+    users_list.save(update_fields = [list_name])
+    return JsonResponse({"success": True})
+
+
+# remove a book from old list, and add it to the new list
+@csrf_exempt
+@login_required
+def update(request):
+    # request method can only be post for this route
+    if request.method != "POST":
+        return HttpResponse("Error - this route can only be accessed via a POST request")
+        
+    data: dict = json.loads(request.body)
+    book_id = data["item_id"]
+    old_list = data["old_list"]
+    new_list = data["new_list"]
+
+    users_list = ReadingList.objects.get(user = request.user)
+
+    list_remove: list = literal_eval(getattr(users_list, old_list))
+    list_remove.remove(book_id)
+    list_remove = f"{list_remove}"
+
+    list_add: list = literal_eval(getattr(users_list, new_list))
+    list_add.append(book_id)
+    list_add = f"{list_add}"
+
+    setattr(users_list, old_list, list_remove)
+    setattr(users_list, new_list, list_add)
+    users_list.save(update_fields = [old_list, new_list])
+    return JsonResponse({"success": True})
+
+
+# display user's profile & book list
+@login_required
+def profile(request):
+    return render (request, "books/profile.html")
+
+
+# return in JSON format all of the books in the user's list 
+# empty values are returned if user is not logged in (TypeError), or if user has not added anything to their reading list yet (DoesNotExist)
+def get_all_books(request):
+    fields = ["read", "unread", "purchased", "dropped"]
+    books = {}
+    try:
+        users_list = ReadingList.objects.get(user = request.user)
+    except (ReadingList.DoesNotExist, TypeError):
+        books = {field: [] for field in fields}
+    else:
+        for field in fields:
+            books[field] = literal_eval(getattr(users_list, field))
+    return JsonResponse({"books": books})
