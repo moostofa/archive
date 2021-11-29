@@ -159,12 +159,22 @@ def add(request):
 
 
 # remove a book from a chosen list
-def remove(request, book_id, list_name):
-    pass
+@csrf_exempt
+@login_required
+def remove(request):
+    # request method can only be post for this route
+    if request.method != "POST":
+        return HttpResponse("Error - this route can only be accessed via a POST request")
+
+    data: dict = json.loads(request.body)
+    book_id = data["item_id"]
+    list_name = data["list_name"]
+
+    return JsonResponse({"Got it!": {"book_id": book_id, "list_name": list_name}})
 
 
 # remove a book from old list, and add it to the new list
-def update(request, book_id, old_list, new_list):
+def update(request):
     pass
 
 
