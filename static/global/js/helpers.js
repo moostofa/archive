@@ -143,6 +143,8 @@ export const displayRemovalOptions = (itemId, itemList) => {
         option.innerHTML = element[0].toUpperCase() + element.substring(1)
         changeMenu.appendChild(option)
     })
+    changeMenu.addEventListener("change", () => update(itemId, listName, changeMenu.value))
+
     actionCol.append(removeBtn, changeMenu)
     return actionCol
 }
@@ -195,4 +197,23 @@ function remove(itemId, listName) {
         }
     })
     .catch(error => console.log(`Error in remove() function - failed to delete an item from a list - ${error}`))
+}
+
+function update(itemId, oldList, newList) {
+    fetch("/books/update", {
+        method: "POST",
+        body: JSON.stringify({
+            "item_id": itemId,
+            "old_list": oldList,
+            "new_list": newList
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result["success"]) {
+            window.location.reload()
+            return alert(`Successfully moved item from ${oldList} list to ${newList} list.`)
+        }
+    })
+    .catch(error => console.log(`Error in update() function - failed to update item to a different list - ${error}`))
 }

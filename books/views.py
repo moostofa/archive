@@ -185,8 +185,32 @@ def remove(request):
 
 
 # remove a book from old list, and add it to the new list
+@csrf_exempt
+@login_required
 def update(request):
-    pass
+    # request method can only be post for this route
+    if request.method != "POST":
+        return HttpResponse("Error - this route can only be accessed via a POST request")
+        
+    data: dict = json.loads(request.body)
+    book_id = data["item_id"]
+    old_list = data["old_list"]
+    new_list = data["new_list"]
+
+    users_list = ReadingList.objects.get(user = request.user)
+
+    list_remove: list = literal_eval(getattr(users_list, old_list))
+    list_remove.remove(book_id)
+    list_remove = f"{list_remove}"
+
+    list_add: list = literal_eval(getattr(users_list, new_list))
+    list_add.append(book_id)
+    list_add = f"{list_add}"
+
+    setattr(users_list, old_list, list_remove)
+    setattr(users_list, new_list, list_add)
+    users_list.save()
+    return JsonResponse({"success": True})
 
 
 # display user's profile & book list
