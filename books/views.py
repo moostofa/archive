@@ -209,7 +209,7 @@ def update(request):
 
     setattr(users_list, old_list, list_remove)
     setattr(users_list, new_list, list_add)
-    users_list.save()
+    users_list.save(update_fields = [old_list, new_list])
     return JsonResponse({"success": True})
 
 
