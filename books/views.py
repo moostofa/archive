@@ -127,9 +127,9 @@ def logout_view(request):
     return HttpResponseRedirect(reverse("books:index"))
 
 
-# add the book to the user's reading list of choice
+# handle all actions of adding to, removing from, or updating reading list
 @csrf_exempt
-def add(request):
+def action(request):
     # request method can only be post for this route
     if request.method != "POST":
         return HttpResponse("Error - this route can only be accessed via a POST request")
@@ -140,76 +140,27 @@ def add(request):
     
     # retrieve POST data
     data: dict = json.loads(request.body)
-    book_id = data["item_id"]
-    list_name = data["list_name"]
+    book_id = data.get("item_id")
+    field_add = data.get("field_add")
+    field_remove = data.get("field_remove")
 
-    # if user doesn't have any items in their list, a new ReadingList object is created, else get the users existing list
+    # create() will be performed when a user first adds to their list - else, the instance will be retrieved via get()
     users_list = ReadingList.objects.get_or_create(user = request.user)[0]
 
-    # get the current list of books in the user's list, and add the new book
-    # converting to a set to prevent duplicate book_ids
-    book_list: list = literal_eval(getattr(users_list, list_name))
-    book_list.add(book_id)
-    book_list = f"{book_list}"
-
-    # update model instance
-    setattr(users_list, list_name, book_list)
-    users_list.save(update_fields = [list_name])
-    return JsonResponse({f"Books in user {request.user.username}'s {list_name} list": book_list})
-
-
-# remove a book from a chosen list
-@csrf_exempt
-@login_required
-def remove(request):
-    # request method can only be post for this route
-    if request.method != "POST":
-        return HttpResponse("Error - this route can only be accessed via a POST request")
-
-    # retrieve POST data
-    data: dict = json.loads(request.body)
-    book_id = data["item_id"]
-    list_name = data["list_name"]
-
-    users_list = ReadingList.objects.get(user = request.user)
-
-    # remove item from user's list
-    book_list: list = literal_eval(getattr(users_list, list_name))
-    book_list.remove(book_id)
-    book_list = f"{book_list}"
-
-    # update model instance
-    setattr(users_list, list_name, book_list)
-    users_list.save(update_fields = [list_name])
-    return JsonResponse({"success": True})
-
-
-# remove a book from old list, and add it to the new list
-@csrf_exempt
-@login_required
-def update(request):
-    # request method can only be post for this route
-    if request.method != "POST":
-        return HttpResponse("Error - this route can only be accessed via a POST request")
-        
-    data: dict = json.loads(request.body)
-    book_id = data["item_id"]
-    old_list = data["old_list"]
-    new_list = data["new_list"]
-
-    users_list = ReadingList.objects.get(user = request.user)
-
-    list_remove: list = literal_eval(getattr(users_list, old_list))
-    list_remove.remove(book_id)
-    list_remove = f"{list_remove}"
-
-    list_add: list = literal_eval(getattr(users_list, new_list))
-    list_add.append(book_id)
-    list_add = f"{list_add}"
-
-    setattr(users_list, old_list, list_remove)
-    setattr(users_list, new_list, list_add)
-    users_list.save(update_fields = [old_list, new_list])
+    # both add and remove actions need to be checked - user may have chosen to move a book from one list to another (i.e, an "update")
+    updated_fields = []
+    if field_add:
+        list_add: list = literal_eval(getattr(users_list, field_add))
+        list_add.append(book_id)
+        setattr(users_list, field_add, f"{list_add}")
+        updated_fields.append(field_add)
+    if field_remove:
+        list_remove: list = literal_eval(getattr(users_list, field_remove))
+        list_remove.remove(book_id)
+        setattr(users_list, field_remove, f"{list_remove}")
+        updated_fields.append(field_remove)
+    
+    users_list.save(update_fields = updated_fields)
     return JsonResponse({"success": True})
 
 

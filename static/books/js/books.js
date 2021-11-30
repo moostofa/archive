@@ -9,9 +9,11 @@ const FIELDS = {
     "Number of pages": "number_of_pages_median"
 }
 
-// listen for click on "search" button
+// listen for click on "search" button on search page
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("search").addEventListener("click", () => search())
+    try {
+        document.getElementById("search").addEventListener("click", () => search())
+    } catch(error) {}
 })
 
 // search for a book by title, author and more (need to filter this later)
@@ -64,5 +66,5 @@ function search() {
         })
         .catch(error => console.log(`Error in search() function - inner fetch() - failed to fetch search results from openlibrary API - ${error}`))
     })
-    .catch(error => console.log(`Error in search() function - outer fetch() - failed to fetch user's reading list from /mylist route - ${error}`))
+    .catch(error => console.log(`Error in search() function - outer fetch() - failed to fetch user's reading list from /books/mybooks route - ${error}`))
 }

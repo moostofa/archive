@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(result => {
         const readingList = result["books"]
 
-        // each key is the name of the reading list, and values are arrays of book ID's which will be used to fetch the books from API
+        // each key is a field of the ReadingList model, and values are arrays of book ID's which will be used to fetch the books from API
         Object.entries(readingList).forEach(([key, value]) => {
             const container = document.createElement("div")
             container.classList = "container"
@@ -45,10 +45,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     row.append(imgCol, infoCol, actionCol)
                     container.appendChild(row)
                 })
-                .catch(error => console.log(`Error - failed to fetch() books from openlibrary - ${error}`))
+                .catch(error => console.log(`Error - failed to fetch() books from openlibrary API - ${error}`))
             })
             document.getElementById("profile-books").appendChild(container)
         })
     })
-    .catch(error => console.log(`Error - failed to fetch() from /books/mybooks - ${error}`))
+    .catch(error => console.log(`Error - failed to fetch() from /books/mybooks route - ${error}`))
 })

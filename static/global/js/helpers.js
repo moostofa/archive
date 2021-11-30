@@ -104,7 +104,10 @@ export const displayArchiveOptions = (itemId, itemList) => {
             selectMenu.appendChild(option)
         })
         // listen for an option select and add the book to that user's chosen list
-        selectMenu.addEventListener("change", () => add(itemId, selectMenu.value, actionCol))
+        selectMenu.addEventListener("change", () => action("add", {
+            "item_id": itemId, 
+            "field_add": selectMenu.value
+        }, actionCol))
         actionCol.appendChild(selectMenu)
     }
     return actionCol
@@ -132,7 +135,11 @@ export const displayRemovalOptions = (itemId, itemList) => {
             break
         }
     }
-    removeBtn.addEventListener("click", () => remove(itemId, listName))
+    // listen for btn click and send appropriate context to be POSTed in order to remove item from a list
+    removeBtn.addEventListener("click", () => action("remove", {
+        "item_id": itemId, 
+        "field_remove": listName
+    }))
 
     const changeMenu = document.createElement("select")
     changeMenu.innerHTML += `<option selected disabled>Add to a different list</option>`
@@ -143,77 +150,58 @@ export const displayRemovalOptions = (itemId, itemList) => {
         option.innerHTML = element[0].toUpperCase() + element.substring(1)
         changeMenu.appendChild(option)
     })
-    changeMenu.addEventListener("change", () => update(itemId, listName, changeMenu.value))
+    // choosing an option from the select menu will trigger an "update" - remove from old list, add to the newly select list
+    changeMenu.addEventListener("change", () => action("update", {
+        "item_id": itemId, 
+        "field_add": changeMenu.value, 
+        "field_remove": listName
+    }))
 
     actionCol.append(removeBtn, changeMenu)
     return actionCol
 }
 
-// send POST data to /books/add in views.py to add book to user's reading list, and provide feedback to the user by manipulating the div
-function add(bookId, listName, div) {
-    fetch("/books/add", {
+/*
+* Summary. Handle sending POST data to add to, remove from, or update fields in the user's list
+
+* @param {String} (action) => the action to be performed - add, remove, or both (i.e, an "update")
+* @param {Object} (context) => an object, with keys being the item_id, and the list(s) to add to/remove from, and their respective values
+* @param {DOMElement} (div) => optional argument - only used in "add" action to give feedback to user
+*/
+function action(action, context, div) {
+    fetch("/books/action", {
         method: "POST",
-        body: JSON.stringify({
-            "book_id": bookId,
-            "list_name": listName
-        })
+        body: JSON.stringify(context)
     })
     .then(response => response.json())
     .then(result => {
         if (result["UserNotLoggedIn"])
-            return alert("You must be logged in to add a book to your reading list")
+            return window.location.replace("/login")
         
-        // create btn indicating that the book has been added to the user's reading list
-        div.innerHTML = ""
-        const btnWrapper = document.createElement("a")
-        btnWrapper.href = "/profile/books"
-
-        const btn = document.createElement("button")
-        btn.classList = "btn btn-primary"
-        btn.innerHTML = `Added to ${listName} list`
-
-        btnWrapper.appendChild(btn)
-        div.appendChild(btnWrapper)
-
-        return alert(`Successfully added the book to ${listName} list!`)
-    })
-    .catch(error => console.log(`Error in add() function - failed to add an item to a list - ${error}`))
-}
-
-// remove a chosen item from a list
-function remove(itemId, listName) {
-    fetch("/books/remove", {
-        method: "POST",
-        body: JSON.stringify({
-            "item_id": itemId,
-            "list_name": listName
-        })
-    })
-    .then(response => response.json())
-    .then(result => {
         if (result["success"]) {
-            window.location.reload()
-            return alert(`Successfully removed item from ${listName} list.`)
-        }
-    })
-    .catch(error => console.log(`Error in remove() function - failed to delete an item from a list - ${error}`))
-}
+            if (action === "add") {
+                // create btn indicating that the book has been added to the user's reading list
+                div.innerHTML = ""
+                const btnWrapper = document.createElement("a")
+                btnWrapper.href = "/profile/books"
 
-function update(itemId, oldList, newList) {
-    fetch("/books/update", {
-        method: "POST",
-        body: JSON.stringify({
-            "item_id": itemId,
-            "old_list": oldList,
-            "new_list": newList
-        })
+                const btn = document.createElement("button")
+                btn.classList = "btn btn-primary"
+                btn.innerHTML = `Added to ${context["field_add"]} list`
+
+                btnWrapper.appendChild(btn)
+                div.appendChild(btnWrapper)
+                return alert(`Successfully added the book to ${context["field_add"]} list!`)
+            } 
+            else if (action === "remove") {
+                window.location.reload()
+                return alert(`Successfully removed item from ${context["field_remove"]} list.`)
+            } 
+            else if (action === "update") {
+                window.location.reload()
+                return alert(`Successfully moved item from ${context["field_remove"]} list to ${context["field_add"]} list.`)
+            }
+        } else console.log("Something else went wrong and it was unaccounted for.")
     })
-    .then(response => response.json())
-    .then(result => {
-        if (result["success"]) {
-            window.location.reload()
-            return alert(`Successfully moved item from ${oldList} list to ${newList} list.`)
-        }
-    })
-    .catch(error => console.log(`Error in update() function - failed to update item to a different list - ${error}`))
+    .catch(error => console.log(`Error in action() function - failed to send POST data to /{app_name}/action route - ${error}`))
 }
