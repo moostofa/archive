@@ -137,30 +137,30 @@ def action(request):
     # user must be logged in to add a book to their reading list
     if not request.user.is_authenticated:
         return JsonResponse({"UserNotLoggedIn": True})
+
+    # create() will be performed when a user first adds to their list - else, the instance will be retrieved via get()
+    users_list = ReadingList.objects.get_or_create(user = request.user)[0]
     
     # retrieve POST data
     data: dict = json.loads(request.body)
     book_id = data.get("item_id")
-    field_add = data.get("field_add")
-    field_remove = data.get("field_remove")
 
-    # create() will be performed when a user first adds to their list - else, the instance will be retrieved via get()
-    users_list = ReadingList.objects.get_or_create(user = request.user)[0]
-
-    # both add and remove actions need to be checked - user may have chosen to move a book from one list to another (i.e, an "update")
-    updated_fields = []
-    if field_add:
-        list_add: list = literal_eval(getattr(users_list, field_add))
-        list_add.append(book_id)
-        setattr(users_list, field_add, f"{list_add}")
-        updated_fields.append(field_add)
-    if field_remove:
-        list_remove: list = literal_eval(getattr(users_list, field_remove))
-        list_remove.remove(book_id)
-        setattr(users_list, field_remove, f"{list_remove}")
-        updated_fields.append(field_remove)
+    # 1 or more operations can be performed
+    actions = {
+        "add": data.get("field_add"), 
+        "remove": data.get("field_remove")
+    }
+    for action, model_field in actions.items():
+        if model_field:
+            item_list: list = literal_eval(getattr(users_list, model_field))
+            if action == "add": 
+                item_list.append(book_id)
+            else:
+                item_list.remove(book_id)
+            setattr(users_list, model_field, f"{item_list}")
     
-    users_list.save(update_fields = updated_fields)
+    # update model fields and return an indication of success
+    users_list.save(update_fields = [field for field in actions.values() if field])
     return JsonResponse({"success": True})
 
 
