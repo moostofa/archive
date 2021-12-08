@@ -7,9 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
     {% block style %}
         <link rel="stylesheet" href="{% static 'books/css/books.css' %}">
     {% endblock %}
+
     <title>{% block title %} Books {% endblock %}</title>
 </head>
 <body>
@@ -21,11 +27,8 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <!-- nav buttons for different apps (only books implemented for now)-->
           <ul class="navbar-nav">
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'books:index' %}">Home <span class="sr-only">(current)</span></a>
-            </li>
             <li class="nav-item">
-              <a class="nav-link" href="#">Books</a>
+              <a class="nav-link" href="{% url 'books:books' %}">Books</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">Movies</a>
@@ -92,6 +95,26 @@
         </div>
     {% else %}
         {% block body %}
+        <div id="root"></div>
+
+        <script type="text/babel">
+            function Apps() {
+                return (
+                    <div>
+                        <a href="{% url 'books:books' %}">
+                            <button>Books</button>
+                        </a>
+                        <a href="#">
+                            <button>Anime</button>
+                        </a>
+                        <a href="#">
+                            <button>Manga</button>
+                        </a>
+                    </div>
+                )
+            }
+            ReactDOM.render(<Apps />, document.getElementById("root"))
+        </script>
 
         {% endblock %}
     {% endif %}
