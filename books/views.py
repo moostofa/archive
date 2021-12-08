@@ -37,8 +37,13 @@ class RegisterForm(LoginForm):
     field_order = ["username", "email", "password", "confirm_password"]
     
 
-# display index page
+# display main index page
 def index(request):
+    return render(request, "global/base.html")
+
+
+# display books index page
+def books(request):
     return render(request, "books/index.html")
 
 
